@@ -33,6 +33,10 @@ http_archive(
     sha256 = "e610c6633763bceec08a647d0605f5df0f9c960028ef32c0730e3df23164fb0d",
 )
 
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
+
 http_archive(
     name = "io_bazel",
     patch_args = ["-p1"],
