@@ -1,0 +1,15 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+
+exports_files(["tsconfig.json"], visibility = ["//visibility:public"])
+
+_publish_files = ["package.json", "LICENSE"] + glob([
+    "syntaxes/*",
+    "icons/*",
+    "media/*",
+])
+
+pkg_npm(
+    name = "vscode-bazel",
+    srcs = _publish_files,
+    deps = ["//src/extension"],
+)

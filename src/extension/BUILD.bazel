@@ -1,0 +1,27 @@
+load("@npm_bazel_typescript//:index.bzl", "ts_library")
+
+ts_library(
+    name = "configuration",
+    visibility = ["//visibility:public"],
+    srcs = ["configuration.ts"],
+    deps = [
+        "@npm//@types/node",
+        "@npm//vscode",
+    ],
+)
+
+ts_library(
+    name = "extension",
+    visibility = ["//visibility:public"],
+    srcs = ["extension.ts"],
+    deps = [
+        ":configuration",
+        "//src/bazel",
+        "//src/buildifier",
+        "//src/codelens",
+        "//src/symbols",
+        "//src/workspace-tree",
+        "@npm//@types/node",
+        "@npm//vscode",
+    ],
+)

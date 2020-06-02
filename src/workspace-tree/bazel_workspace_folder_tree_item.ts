@@ -39,7 +39,7 @@ export class BazelWorkspaceFolderTreeItem implements IBazelTreeItem {
   }
 
   public getLabel(): string {
-    return this.workspaceInfo.workspaceFolder.name;
+    return this.workspaceInfo.workspaceFolder?.name || "";
   }
 
   public getIcon(): vscode.ThemeIcon {
@@ -47,7 +47,7 @@ export class BazelWorkspaceFolderTreeItem implements IBazelTreeItem {
   }
 
   public getTooltip(): string {
-    return this.workspaceInfo.workspaceFolder.uri.fsPath;
+    return this.workspaceInfo.workspaceFolder?.uri.fsPath || "";
   }
 
   public getCommand(): vscode.Command | undefined {
@@ -79,7 +79,7 @@ export class BazelWorkspaceFolderTreeItem implements IBazelTreeItem {
     startIndex: number,
     endIndex: number,
     treeItems: BazelPackageTreeItem[],
-    parentPackagePath: string,
+    parentPackagePath: string
   ) {
     // We can assume that the caller has sorted the packages, so we scan them to
     // find groupings into which we should traverse more deeply. For example, if
@@ -125,7 +125,7 @@ export class BazelWorkspaceFolderTreeItem implements IBazelTreeItem {
       const item = new BazelPackageTreeItem(
         this.workspaceInfo,
         packagePath,
-        parentPackagePath,
+        parentPackagePath
       );
       treeItems.push(item);
       this.buildPackageTree(
@@ -133,7 +133,7 @@ export class BazelWorkspaceFolderTreeItem implements IBazelTreeItem {
         groupStart + 1,
         groupEnd,
         item.directSubpackages,
-        packagePath,
+        packagePath
       );
 
       // Move our index to start looking for more groups in the next iteration
@@ -153,7 +153,7 @@ export class BazelWorkspaceFolderTreeItem implements IBazelTreeItem {
     // have a VS Code workspace that is pointed at a subpackage of a large
     // workspace without the performance penalty of querying the entire
     // workspace.
-    if (!this.workspaceInfo) {
+    if (!this.workspaceInfo || !this.workspaceInfo.workspaceFolder) {
       return Promise.resolve([]);
     }
     const workspacePath = this.workspaceInfo.workspaceFolder.uri.fsPath;
@@ -161,7 +161,7 @@ export class BazelWorkspaceFolderTreeItem implements IBazelTreeItem {
       getDefaultBazelExecutablePath(),
       workspacePath,
       "...:*",
-      [],
+      []
     ).queryPackages();
     const topLevelItems: BazelPackageTreeItem[] = [];
     this.buildPackageTree(
@@ -169,7 +169,7 @@ export class BazelWorkspaceFolderTreeItem implements IBazelTreeItem {
       0,
       packagePaths.length,
       topLevelItems,
-      "",
+      ""
     );
 
     // Now collect any targets in the directory also (this can fail since
@@ -179,10 +179,13 @@ export class BazelWorkspaceFolderTreeItem implements IBazelTreeItem {
       workspacePath,
       `:all`,
       [],
-      true,
+      true
     ).queryTargets([], /* sortByRuleName: */ true);
-    const targets = queryResult.target.map((target: blaze_query.Target) => {
-      return new BazelTargetTreeItem(this.workspaceInfo, target);
+    const targets = queryResult.target.map((target) => {
+      return new BazelTargetTreeItem(
+        this.workspaceInfo,
+        new blaze_query.Target(target)
+      );
     });
 
     return Promise.resolve((topLevelItems as IBazelTreeItem[]).concat(targets));

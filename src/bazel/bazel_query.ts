@@ -42,7 +42,7 @@ export class BazelQuery extends BazelCommand {
     workingDirectory: string,
     query: string,
     options: string[],
-    private readonly ignoresErrors: boolean = false,
+    private readonly ignoresErrors: boolean = false
   ) {
     super(bazelExecutable, workingDirectory, [query].concat(options));
   }
@@ -58,14 +58,14 @@ export class BazelQuery extends BazelCommand {
    */
   public async queryTargets(
     additionalOptions: string[] = [],
-    sortByRuleName: boolean = false,
+    sortByRuleName: boolean = false
   ): Promise<blaze_query.QueryResult> {
     const buffer = await this.run(additionalOptions.concat(["--output=proto"]));
     const result = blaze_query.QueryResult.decode(buffer);
     if (sortByRuleName) {
       const sorted = result.target.sort((t1, t2) => {
-        const n1 = t1.rule.name;
-        const n2 = t2.rule.name;
+        const n1 = t1.rule?.name || "";
+        const n2 = t2.rule?.name || "";
         if (n1 > n2) {
           return 1;
         }
@@ -89,16 +89,12 @@ export class BazelQuery extends BazelCommand {
    *     match.
    */
   public async queryPackages(
-    additionalOptions: string[] = [],
+    additionalOptions: string[] = []
   ): Promise<string[]> {
     const buffer = await this.run(
-      additionalOptions.concat(["--output=package"]),
+      additionalOptions.concat(["--output=package"])
     );
-    const result = buffer
-      .toString("utf-8")
-      .trim()
-      .split("\n")
-      .sort();
+    const result = buffer.toString("utf-8").trim().split("\n").sort();
     return result;
   }
 
@@ -132,18 +128,18 @@ export class BazelQuery extends BazelCommand {
       // uses a generated tmp directory based on the Bazel workspace, this way
       // the server is shared for all the queries.
       const ws = getBazelWorkspaceFolder(this.workingDirectory);
-      const hash = crypto.createHash("md5").update(ws).digest("hex");
-      const outputBase = path.join(os.tmpdir(), hash);
-      additionalStartupOptions = additionalStartupOptions.concat([
-        `--output_base=${outputBase}`,
-      ]);
+      if (ws) {
+        const hash = crypto.createHash("md5").update(ws).digest("hex");
+        const outputBase = path.join(os.tmpdir(), hash);
+        additionalStartupOptions = additionalStartupOptions.concat([
+          `--output_base=${outputBase}`,
+        ]);
+      }
     }
     return new Promise((resolve, reject) => {
       const execOptions = {
         cwd: this.workingDirectory,
-        // A null encoding causes the callback below to receive binary data as a
-        // Buffer instead of text data as strings.
-        encoding: null,
+        encoding: "binary" as BufferEncoding,
         maxBuffer: Number.MAX_SAFE_INTEGER,
       };
       child_process.execFile(
@@ -160,7 +156,7 @@ export class BazelQuery extends BazelCommand {
           } else {
             resolve(stdout);
           }
-        },
+        }
       );
     });
   }

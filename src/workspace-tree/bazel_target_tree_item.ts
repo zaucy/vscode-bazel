@@ -31,7 +31,7 @@ export class BazelTargetTreeItem
    */
   constructor(
     private readonly workspaceInfo: BazelWorkspaceInfo,
-    private readonly target: blaze_query.Target,
+    private readonly target: blaze_query.Target
   ) {}
 
   public mightHaveChildren(): boolean {
@@ -43,6 +43,10 @@ export class BazelTargetTreeItem
   }
 
   public getLabel(): string {
+    if (!this.target.rule) {
+      return "";
+    }
+
     const fullPath = this.target.rule.name;
     const colonIndex = fullPath.lastIndexOf(":");
     const targetName = fullPath.substr(colonIndex);
@@ -54,10 +58,14 @@ export class BazelTargetTreeItem
   }
 
   public getTooltip(): string {
-    return `${this.target.rule.name}`;
+    return `${this.target.rule?.name || ""}`;
   }
 
   public getCommand(): vscode.Command | undefined {
+    if (!this.target.rule || !this.target.rule.location) {
+      return undefined;
+    }
+
     const location = new QueryLocation(this.target.rule.location);
     return {
       arguments: [
@@ -70,7 +78,7 @@ export class BazelTargetTreeItem
   }
 
   public getContextValue(): string {
-    const ruleClass = this.target.rule.ruleClass;
+    const ruleClass = this.target.rule?.ruleClass || "";
     if (ruleClass.endsWith("_test") || ruleClass === "test_suite") {
       return "testRule";
     }
@@ -80,7 +88,7 @@ export class BazelTargetTreeItem
   public getBazelCommandOptions(): IBazelCommandOptions {
     return {
       options: [],
-      targets: [`${this.target.rule.name}`],
+      targets: [`${this.target.rule?.name || ""}`],
       workspaceInfo: this.workspaceInfo,
     };
   }

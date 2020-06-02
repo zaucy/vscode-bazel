@@ -1,0 +1,42 @@
+diff --git a/src/main/java/com/google/devtools/build/lib/buildeventstream/proto/BUILD b/src/main/java/com/google/devtools/build/lib/buildeventstream/proto/BUILD
+index 118b30ce8d..c5e069008c 100644
+--- a/src/main/java/com/google/devtools/build/lib/buildeventstream/proto/BUILD
++++ b/src/main/java/com/google/devtools/build/lib/buildeventstream/proto/BUILD
+@@ -25,6 +25,7 @@ java_proto_library(
+ proto_library(
+     name = "build_event_stream_proto",
+     srcs = ["build_event_stream.proto"],
++    visibility = ["//visibility:public"],
+     deps = [
+         "//src/main/protobuf:command_line_proto",
+         "//src/main/protobuf:failure_details_proto",
+diff --git a/src/main/java/com/google/devtools/build/lib/starlarkdebug/proto/BUILD b/src/main/java/com/google/devtools/build/lib/starlarkdebug/proto/BUILD
+index d6b1306879..65686d5715 100644
+--- a/src/main/java/com/google/devtools/build/lib/starlarkdebug/proto/BUILD
++++ b/src/main/java/com/google/devtools/build/lib/starlarkdebug/proto/BUILD
+@@ -23,4 +23,5 @@ java_proto_library(
+ proto_library(
+     name = "starlark_debugging_proto",
+     srcs = ["starlark_debugging.proto"],
++    visibility = ["//visibility:public"],
+ )
+diff --git a/src/main/protobuf/BUILD b/src/main/protobuf/BUILD
+index 29bca3a038..11602d582a 100644
+--- a/src/main/protobuf/BUILD
++++ b/src/main/protobuf/BUILD
+@@ -129,7 +129,6 @@ java_library_srcs(
+ proto_library(
+     name = "option_filters_proto",
+     srcs = ["option_filters.proto"],
+-    visibility = ["//visibility:private"],
+ )
+ 
+ java_proto_library(
+@@ -147,7 +146,6 @@ java_library_srcs(
+ proto_library(
+     name = "command_line_proto",
+     srcs = ["command_line.proto"],
+-    visibility = ["//src/main/java/com/google/devtools/build/lib/buildeventstream/proto:__pkg__"],
+     deps = [":option_filters_proto"],
+ )
+ 

@@ -26,9 +26,5 @@ export function getDefaultBazelExecutablePath(): string {
   // Try to retrieve the executable from VS Code's settings. If it's not set,
   // just use "bazel" as the default and get it from the system PATH.
   const bazelConfig = vscode.workspace.getConfiguration("bazel");
-  const bazelExecutable = bazelConfig.get<string>("executable");
-  if (bazelExecutable.length === 0) {
-    return "bazel";
-  }
-  return bazelExecutable;
+  return bazelConfig.get<string>("executable", "bazel");
 }

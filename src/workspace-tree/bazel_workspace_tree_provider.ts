@@ -45,22 +45,22 @@ export class BazelWorkspaceTreeProvider
       "**/{BUILD,BUILD.bazel}",
       false,
       false,
-      false,
+      false
     );
     buildWatcher.onDidChange(
       this.onBuildFilesChanged,
       this,
-      context.subscriptions,
+      context.subscriptions
     );
     buildWatcher.onDidCreate(
       this.onBuildFilesChanged,
       this,
-      context.subscriptions,
+      context.subscriptions
     );
     buildWatcher.onDidDelete(
       this.onBuildFilesChanged,
       this,
-      context.subscriptions,
+      context.subscriptions
     );
 
     vscode.workspace.onDidChangeWorkspaceFolders(this.refresh, this);
@@ -133,26 +133,29 @@ export class BazelWorkspaceTreeProvider
   /** Refresh the cached BazelWorkspaceFolderTreeItems. */
   private updateWorkspaceFolderTreeItems() {
     if (vscode.workspace.workspaceFolders) {
-      this.workspaceFolderTreeItems =
-        vscode.workspace.workspaceFolders
-          .map((folder) => {
-            const workspaceInfo = BazelWorkspaceInfo.fromWorkspaceFolder(
-              folder,
-            );
-            if (workspaceInfo) {
-              return new BazelWorkspaceFolderTreeItem(workspaceInfo);
-            }
-            return undefined;
-          })
-          .filter((folder) => folder !== undefined);
+      this.workspaceFolderTreeItems = vscode.workspace.workspaceFolders
+        .map((folder) => {
+          const workspaceInfo = BazelWorkspaceInfo.fromWorkspaceFolder(folder);
+          if (workspaceInfo) {
+            return new BazelWorkspaceFolderTreeItem(workspaceInfo);
+          }
+          return undefined;
+        })
+        .filter((folder) => folder !== undefined)
+        // This map is only for the typings
+        .map((folder) => folder as BazelWorkspaceFolderTreeItem);
     } else {
       this.workspaceFolderTreeItems = [];
     }
 
     // All the UI to update based on having items.
-    const haveBazelWorkspace = this.workspaceFolderTreeItems.length !== 0;
+    const haveBazelWorkspace =
+      this.workspaceFolderTreeItems &&
+      this.workspaceFolderTreeItems.length !== 0;
     vscode.commands.executeCommand(
-      "setContext", "vscodeBazelHaveBazelWorkspace", haveBazelWorkspace,
+      "setContext",
+      "vscodeBazelHaveBazelWorkspace",
+      haveBazelWorkspace
     );
   }
 }

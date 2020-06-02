@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import { EventEmitter } from "events";
+import * as long from "long";
 import * as net from "net";
 import * as protobuf from "protobufjs";
-import { skylark_debugging } from "../protos";
+import { starlark_debugging } from "../protos";
 
 /**
  * Manages the connection between the debug adapter and the debugging server
@@ -27,16 +28,16 @@ import { skylark_debugging } from "../protos";
  */
 export class BazelDebugConnection extends EventEmitter {
   /** The socket used to connect to the debugging server in Bazel. */
-  private socket: net.Socket;
+  private socket!: net.Socket;
 
   /**
    * A buffer that stores data read from the socket until a complete message is
    * available.
    */
-  private buffer: Buffer;
+  private buffer: Buffer | null = null;
 
   /** Reads protobuf messages from the buffer. */
-  private reader: protobuf.Reader;
+  private reader!: protobuf.Reader;
 
   /**
    * A monotonically increasing sequence number used to uniquely identify
@@ -57,7 +58,7 @@ export class BazelDebugConnection extends EventEmitter {
    */
   private pendingResolvers = new Map<
     string,
-    (event: skylark_debugging.IDebugEvent) => void
+    (event: starlark_debugging.IDebugEvent) => void
   >();
 
   /**
@@ -69,7 +70,7 @@ export class BazelDebugConnection extends EventEmitter {
   public constructor(
     host: string,
     port: number,
-    private logger: (message: string, ...objects: any[]) => void,
+    private logger: (message: string, ...objects: any[]) => void
   ) {
     super();
 
@@ -86,17 +87,19 @@ export class BazelDebugConnection extends EventEmitter {
    * @returns A {@code Promise} for the response to the request.
    */
   public sendRequest(
-    options: skylark_debugging.IDebugRequest,
-  ): Promise<skylark_debugging.IDebugEvent> {
-    options.sequenceNumber = this.sequenceNumber++;
+    options: starlark_debugging.IDebugRequest
+  ): Promise<starlark_debugging.IDebugEvent> {
+    const sequenceNumber = long.fromValue(this.sequenceNumber++);
 
-    const promise = new Promise<skylark_debugging.IDebugEvent>((resolve) => {
-      this.pendingResolvers.set(options.sequenceNumber.toString(), resolve);
+    options.sequenceNumber = sequenceNumber;
+
+    const promise = new Promise<starlark_debugging.IDebugEvent>((resolve) => {
+      this.pendingResolvers.set(sequenceNumber.toString(), resolve);
     });
 
-    const request = skylark_debugging.DebugRequest.create(options);
+    const request = starlark_debugging.DebugRequest.create(options);
 
-    const writer = skylark_debugging.DebugRequest.encodeDelimited(request);
+    const writer = starlark_debugging.DebugRequest.encodeDelimited(request);
     const bytes = writer.finish();
     this.socket.write(bytes);
 
@@ -131,16 +134,13 @@ export class BazelDebugConnection extends EventEmitter {
           }, 1000);
         } else {
           this.logger(
-            "Could not connect to Bazel debug server after 5 seconds",
+            "Could not connect to Bazel debug server after 5 seconds"
           );
           // TODO(allevato): Improve the error case.
           throw error;
         }
       });
-    socket.connect(
-      port,
-      host,
-    );
+    socket.connect(port, host);
   }
 
   /**
@@ -154,12 +154,12 @@ export class BazelDebugConnection extends EventEmitter {
    * @param chunk A chunk of bytes from the socket.
    */
   private consumeChunk(chunk: Buffer) {
-    let event: skylark_debugging.DebugEvent = null;
+    let event: starlark_debugging.DebugEvent | null = null;
     this.append(chunk);
 
     while (true) {
       try {
-        event = skylark_debugging.DebugEvent.decodeDelimited(this.reader);
+        event = starlark_debugging.DebugEvent.decodeDelimited(this.reader);
       } catch (err) {
         // This occurs if there is a partial message in the buffer; stop reading
         // and wait for more data.
@@ -172,7 +172,7 @@ export class BazelDebugConnection extends EventEmitter {
       // number or a Long (which is an object with separate low/high ints.)
       if (event.sequenceNumber.toString() !== "0") {
         const handler = this.pendingResolvers.get(
-          event.sequenceNumber.toString(),
+          event.sequenceNumber.toString()
         );
         if (handler) {
           this.pendingResolvers.delete(event.sequenceNumber.toString());
@@ -203,6 +203,10 @@ export class BazelDebugConnection extends EventEmitter {
 
   /** Collapses the buffer so that any data already read is removed. */
   private collapse() {
+    if (!this.buffer) {
+      throw new Error("Cannot collapse unset buffer");
+    }
+
     this.buffer = this.buffer.slice(this.reader.pos);
     this.reader = protobuf.Reader.create(this.buffer);
   }

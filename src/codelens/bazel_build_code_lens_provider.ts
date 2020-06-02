@@ -39,14 +39,14 @@ export class BazelBuildCodeLensProvider implements vscode.CodeLensProvider {
       "**/{BUILD,BUILD.bazel}",
       true, // ignoreCreateEvents
       false,
-      true, // ignoreDeleteEvents
+      true // ignoreDeleteEvents
     );
     buildWatcher.onDidChange(
       (uri) => {
         this.onDidChangeCodeLensesEmitter.fire();
       },
       this,
-      context.subscriptions,
+      context.subscriptions
     );
 
     vscode.workspace.onDidChangeConfiguration((change) => {
@@ -65,7 +65,7 @@ export class BazelBuildCodeLensProvider implements vscode.CodeLensProvider {
    */
   public async provideCodeLenses(
     document: vscode.TextDocument,
-    token: vscode.CancellationToken,
+    token: vscode.CancellationToken
   ): Promise<vscode.CodeLens[]> {
     const bazelConfig = vscode.workspace.getConfiguration("bazel");
     const enableCodeLens = bazelConfig.get<boolean>("enableCodeLens");
@@ -89,7 +89,7 @@ export class BazelBuildCodeLensProvider implements vscode.CodeLensProvider {
     const queryResult = await getTargetsForBuildFile(
       getDefaultBazelExecutablePath(),
       workspaceInfo.bazelWorkspacePath,
-      document.uri.fsPath,
+      document.uri.fsPath
     );
 
     return this.computeCodeLenses(workspaceInfo, queryResult);
@@ -104,11 +104,15 @@ export class BazelBuildCodeLensProvider implements vscode.CodeLensProvider {
    */
   private computeCodeLenses(
     bazelWorkspaceInfo: BazelWorkspaceInfo,
-    queryResult: blaze_query.QueryResult,
+    queryResult: blaze_query.QueryResult
   ): vscode.CodeLens[] {
     const result = [];
 
     for (const target of queryResult.target) {
+      if (!target.rule || !target.rule.location) {
+        continue;
+      }
+
       const location = new QueryLocation(target.rule.location);
       const targetName = target.rule.name;
       const ruleClass = target.rule.ruleClass;

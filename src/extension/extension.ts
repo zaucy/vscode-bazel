@@ -50,24 +50,24 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider(
       "bazelWorkspace",
-      workspaceTreeProvider,
+      workspaceTreeProvider
     ),
     // Commands
     vscode.commands.registerCommand("bazel.buildTarget", bazelBuildTarget),
     vscode.commands.registerCommand(
       "bazel.buildTargetWithDebugging",
-      bazelBuildTargetWithDebugging,
+      bazelBuildTargetWithDebugging
     ),
     vscode.commands.registerCommand("bazel.buildAll", bazelbuildAll),
     vscode.commands.registerCommand(
       "bazel.buildAllRecursive",
-      bazelbuildAllRecursive,
+      bazelbuildAllRecursive
     ),
     vscode.commands.registerCommand("bazel.testTarget", bazelTestTarget),
     vscode.commands.registerCommand("bazel.testAll", bazelTestAll),
     vscode.commands.registerCommand(
       "bazel.testAllRecursive",
-      bazelTestAllRecursive,
+      bazelTestAllRecursive
     ),
     vscode.commands.registerCommand("bazel.clean", bazelClean),
     vscode.commands.registerCommand("bazel.refreshBazelBuildTargets", () => {
@@ -75,12 +75,12 @@ export function activate(context: vscode.ExtensionContext) {
     }),
     vscode.commands.registerCommand(
       "bazel.copyTargetToClipboard",
-      bazelCopyTargetToClipboard,
+      bazelCopyTargetToClipboard
     ),
     // CodeLens provider for BUILD files
     vscode.languages.registerCodeLensProvider(
       [{ pattern: "**/BUILD" }, { pattern: "**/BUILD.bazel" }],
-      codeLensProvider,
+      codeLensProvider
     ),
     // Buildifier formatting support
     vscode.languages.registerDocumentFormattingEditProvider(
@@ -94,18 +94,18 @@ export function activate(context: vscode.ExtensionContext) {
         { pattern: "**/*.bzl" },
         { pattern: "**/*.sky" },
       ],
-      new BuildifierFormatProvider(),
+      new BuildifierFormatProvider()
     ),
     buildifierDiagnostics,
     // Symbol provider for BUILD files
     vscode.languages.registerDocumentSymbolProvider(
       [{ pattern: "**/BUILD" }, { pattern: "**/BUILD.bazel" }],
-      new BazelTargetSymbolProvider(),
+      new BazelTargetSymbolProvider()
     ),
     // Task events.
     vscode.tasks.onDidStartTask(onTaskStart),
     vscode.tasks.onDidStartTaskProcess(onTaskProcessStart),
-    vscode.tasks.onDidEndTaskProcess(onTaskProcessEnd),
+    vscode.tasks.onDidEndTaskProcess(onTaskProcessEnd)
   );
 
   // Notify the user if buildifier is not available on their path (or where
@@ -133,18 +133,18 @@ async function bazelBuildTarget(adapter: IBazelCommandAdapter | undefined) {
       queryQuickPickTargets("kind('.* rule', ...)"),
       {
         canPickMany: false,
-      },
+      }
     );
     // If the result was undefined, the user cancelled the quick pick, so don't
     // try again.
     if (quickPick) {
-      bazelBuildTarget(quickPick);
+      await bazelBuildTarget(quickPick);
     }
     return;
   }
   const commandOptions = adapter.getBazelCommandOptions();
   const task = createBazelTask("build", commandOptions);
-  vscode.tasks.executeTask(task);
+  await vscode.tasks.executeTask(task);
 }
 
 /**
@@ -154,7 +154,7 @@ async function bazelBuildTarget(adapter: IBazelCommandAdapter | undefined) {
  *     which the command's arguments will be determined.
  */
 async function bazelBuildTargetWithDebugging(
-  adapter: IBazelCommandAdapter | undefined,
+  adapter: IBazelCommandAdapter | undefined
 ) {
   if (adapter === undefined) {
     // If the command adapter was unspecified, it means this command is being
@@ -164,18 +164,20 @@ async function bazelBuildTargetWithDebugging(
       queryQuickPickTargets("kind('.* rule', ...)"),
       {
         canPickMany: false,
-      },
+      }
     );
     // If the result was undefined, the user cancelled the quick pick, so don't
     // try again.
     if (quickPick) {
-      bazelBuildTargetWithDebugging(quickPick);
+      await bazelBuildTargetWithDebugging(quickPick);
     }
     return;
   }
-  const bazelConfigCmdLine = vscode.workspace.getConfiguration("bazel.commandLine");
-  const startupOptions = bazelConfigCmdLine.get<string[]>("startupOptions");
-  const commandArgs = bazelConfigCmdLine.get<string[]>("commandArgs");
+  const bazelConfigCmdLine = vscode.workspace.getConfiguration(
+    "bazel.commandLine"
+  );
+  const startupOptions = bazelConfigCmdLine.get<string[]>("startupOptions", []);
+  const commandArgs = bazelConfigCmdLine.get<string[]>("commandArgs", []);
 
   const commandOptions = adapter.getBazelCommandOptions();
 
@@ -183,7 +185,7 @@ async function bazelBuildTargetWithDebugging(
     .concat(commandOptions.targets)
     .concat(commandOptions.options);
 
-  vscode.debug.startDebugging(undefined, {
+  await vscode.debug.startDebugging(undefined, {
     args: fullArgs,
     bazelCommand: "build",
     bazelExecutablePath: getDefaultBazelExecutablePath(),
@@ -202,7 +204,7 @@ async function bazelBuildTargetWithDebugging(
  *     which the command's arguments will be determined.
  */
 async function bazelbuildAll(adapter: IBazelCommandAdapter | undefined) {
-  buildPackage(":all", adapter);
+  await buildPackage(":all", adapter);
 }
 
 /**
@@ -212,14 +214,14 @@ async function bazelbuildAll(adapter: IBazelCommandAdapter | undefined) {
  *     which the command's arguments will be determined.
  */
 async function bazelbuildAllRecursive(
-  adapter: IBazelCommandAdapter | undefined,
+  adapter: IBazelCommandAdapter | undefined
 ) {
-  buildPackage("/...", adapter);
+  await buildPackage("/...", adapter);
 }
 
 async function buildPackage(
   suffix: string,
-  adapter: IBazelCommandAdapter | undefined,
+  adapter: IBazelCommandAdapter | undefined
 ) {
   if (adapter === undefined) {
     // If the command adapter was unspecified, it means this command is being
@@ -229,12 +231,12 @@ async function buildPackage(
       queryQuickPickPackage(),
       {
         canPickMany: false,
-      },
+      }
     );
     // If the result was undefined, the user cancelled the quick pick, so don't
     // try again.
     if (quickPick) {
-      buildPackage(suffix, quickPick);
+      await buildPackage(suffix, quickPick);
     }
     return;
   }
@@ -245,7 +247,7 @@ async function buildPackage(
     workspaceInfo: commandOptions.workspaceInfo,
   };
   const task = createBazelTask("build", allCommandOptions);
-  vscode.tasks.executeTask(task);
+  await vscode.tasks.executeTask(task);
 }
 
 /**
@@ -263,18 +265,18 @@ async function bazelTestTarget(adapter: IBazelCommandAdapter | undefined) {
       queryQuickPickTargets("kind('.*_test rule', ...)"),
       {
         canPickMany: false,
-      },
+      }
     );
     // If the result was undefined, the user cancelled the quick pick, so don't
     // try again.
     if (quickPick) {
-      bazelTestTarget(quickPick);
+      await bazelTestTarget(quickPick);
     }
     return;
   }
   const commandOptions = adapter.getBazelCommandOptions();
   const task = createBazelTask("test", commandOptions);
-  vscode.tasks.executeTask(task);
+  await vscode.tasks.executeTask(task);
 }
 
 /**
@@ -284,7 +286,7 @@ async function bazelTestTarget(adapter: IBazelCommandAdapter | undefined) {
  *     which the command's arguments will be determined.
  */
 async function bazelTestAll(adapter: IBazelCommandAdapter | undefined) {
-  testPackage(":all", adapter);
+  await testPackage(":all", adapter);
 }
 
 /**
@@ -294,14 +296,14 @@ async function bazelTestAll(adapter: IBazelCommandAdapter | undefined) {
  *     which the command's arguments will be determined.
  */
 async function bazelTestAllRecursive(
-  adapter: IBazelCommandAdapter | undefined,
+  adapter: IBazelCommandAdapter | undefined
 ) {
-  testPackage("/...", adapter);
+  await testPackage("/...", adapter);
 }
 
 async function testPackage(
   suffix: string,
-  adapter: IBazelCommandAdapter | undefined,
+  adapter: IBazelCommandAdapter | undefined
 ) {
   if (adapter === undefined) {
     // If the command adapter was unspecified, it means this command is being
@@ -311,12 +313,12 @@ async function testPackage(
       queryQuickPickPackage(),
       {
         canPickMany: false,
-      },
+      }
     );
     // If the result was undefined, the user cancelled the quick pick, so don't
     // try again.
     if (quickPick) {
-      testPackage(suffix, quickPick);
+      await testPackage(suffix, quickPick);
     }
     return;
   }
@@ -327,7 +329,7 @@ async function testPackage(
     workspaceInfo: commandOptions.workspaceInfo,
   };
   const task = createBazelTask("test", allCommandOptions);
-  vscode.tasks.executeTask(task);
+  await vscode.tasks.executeTask(task);
 }
 
 /**
@@ -339,12 +341,16 @@ async function testPackage(
  */
 async function bazelClean() {
   const workspaces = vscode.workspace.workspaceFolders;
-  let workspaceFolder: vscode.WorkspaceFolder;
+  let workspaceFolder: vscode.WorkspaceFolder | undefined;
+
+  if (!workspaces) {
+    return;
+  }
 
   switch (workspaces.length) {
     case 0:
-      vscode.window.showInformationMessage(
-        "Please open a Bazel workspace folder to use this command.",
+      await vscode.window.showInformationMessage(
+        "Please open a Bazel workspace folder to use this command."
       );
       return;
     case 1:
@@ -357,19 +363,24 @@ async function bazelClean() {
       }
   }
 
+  const workspaceInfo = BazelWorkspaceInfo.fromWorkspaceFolder(workspaceFolder);
+  if (!workspaceInfo) {
+    return;
+  }
+
   const task = createBazelTask("clean", {
     options: [],
     targets: [],
-    workspaceInfo: BazelWorkspaceInfo.fromWorkspaceFolder(workspaceFolder),
+    workspaceInfo,
   });
-  vscode.tasks.executeTask(task);
+  await vscode.tasks.executeTask(task);
 }
 
 /**
  * Copies a target to the clipboard.
  */
 async function bazelCopyTargetToClipboard(
-  adapter: IBazelCommandAdapter | undefined,
+  adapter: IBazelCommandAdapter | undefined
 ) {
   if (adapter === undefined) {
     // This command should not be enabled in the commands palette, so adapter
@@ -379,7 +390,7 @@ async function bazelCopyTargetToClipboard(
   // This can only be called on single targets, so we can assume there is only
   // one of them.
   const target = adapter.getBazelCommandOptions().targets[0];
-  vscode.env.clipboard.writeText(target);
+  await vscode.env.clipboard.writeText(target);
 }
 
 function onTaskStart(event: vscode.TaskStartEvent) {
@@ -406,15 +417,13 @@ function onTaskProcessEnd(event: vscode.TaskProcessEndEvent) {
     if (rawExitCode !== 0) {
       vscode.window.showErrorMessage(
         `Bazel ${bazelTaskInfo.command} failed: ${exitCodeToUserString(
-          exitCode,
-        )}`,
+          exitCode
+        )}`
       );
     } else {
       const timeInSeconds = measurePerformance(bazelTaskInfo.startTime);
       vscode.window.showInformationMessage(
-        `Bazel ${
-          bazelTaskInfo.command
-        } completed successfully in ${timeInSeconds} seconds.`,
+        `Bazel ${bazelTaskInfo.command} completed successfully in ${timeInSeconds} seconds.`
       );
     }
   }

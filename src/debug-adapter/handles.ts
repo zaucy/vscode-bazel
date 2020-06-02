@@ -34,8 +34,8 @@ export class Handles<T> {
   }
 
   /** Retrieves the value with the given handle. */
-  public get(handle: number): T {
-    return this.values.get(handle);
+  public get(handle: number): T | null {
+    return this.values.get(handle) || null;
   }
 
   /** Clears all the handles and stored values. */

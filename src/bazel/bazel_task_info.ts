@@ -18,13 +18,13 @@ import { IBazelCommandOptions } from "./bazel_command";
 /** Information about a Bazel task. */
 export class BazelTaskInfo {
   /** pid for the task (if started). */
-  public processId: number;
+  public processId!: number;
 
   /** exit code for the task (if completed). */
-  public exitCode: number;
+  public exitCode!: number;
 
   /** start time (for internal performance tracking). */
-  public startTime: [number, number];
+  public startTime!: [number, number];
 
   /**
    * Initializes a new Bazel task info instance.
@@ -34,7 +34,7 @@ export class BazelTaskInfo {
    */
   public constructor(
     readonly command: string,
-    readonly commandOptions: IBazelCommandOptions,
+    readonly commandOptions: IBazelCommandOptions
   ) {}
 }
 

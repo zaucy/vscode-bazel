@@ -6,11 +6,11 @@
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
-            "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
+            "args": ["--extensionDevelopmentPath=${workspaceRoot}/bazel-bin/vscode-bazel"],
             "stopOnEntry": false,
             "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
-            "preLaunchTask": "npm"
+            "outFiles": ["${workspaceRoot}/bazel-bin/vscode-bazel/src/**/*.js"],
+            "preLaunchTask": "build //:vscode-bazel",
         },
         {
             "name": "Launch Debug Server",
@@ -20,7 +20,7 @@
             "program": "${workspaceFolder}/src/debug-adapter/client.ts",
             "args": ["--server=4711"],
             "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/out/src/**/*.js"]
+            "outFiles": ["${workspaceRoot}/bazel-bin/vscode-bazel/src/**/*.js"]
         }
     ],
     "compounds": [

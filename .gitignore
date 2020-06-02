@@ -6,3 +6,6 @@ node_modules
 # tree.
 src/protos/protos.d.ts
 src/protos/protos.js
+
+# Bazel
+bazel-*

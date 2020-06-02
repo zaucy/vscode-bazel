@@ -1,0 +1,17 @@
+load("@npm_bazel_labs//protobufjs:ts_proto_library.bzl", "ts_proto_library")
+
+_proto_deps = [
+    "@io_bazel//src/main/java/com/google/devtools/build/lib/buildeventstream/proto:build_event_stream_proto",
+    "@io_bazel//src/main/java/com/google/devtools/build/lib/starlarkdebug/proto:starlark_debugging_proto",
+    "@io_bazel//src/main/protobuf:build_proto",
+    "@io_bazel//src/main/protobuf:command_line_proto",
+    "@io_bazel//src/main/protobuf:invocation_policy_proto",
+    "@io_bazel//src/main/protobuf:option_filters_proto",
+]
+
+ts_proto_library(
+    name = "protos",
+    output_name = "index",
+    visibility = ["//visibility:public"],
+    deps = _proto_deps,
+)

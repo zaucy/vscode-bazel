@@ -57,8 +57,8 @@ export abstract class BazelCommand {
   public constructor(
     readonly bazelExecutable: string,
     readonly workingDirectory: string,
-    readonly options: string[] = [],
-  ) { }
+    readonly options: string[] = []
+  ) {}
 
   /**
    * Overridden by subclasses to provide the Bazel command that should be
@@ -69,11 +69,15 @@ export abstract class BazelCommand {
   /** The args used to execute the for the command. */
   protected execArgs(
     additionalOptions: string[] = [],
-    additionalStartupOptions: string[] = [],
+    additionalStartupOptions: string[] = []
   ) {
-    const bazelConfigCmdLine =
-      vscode.workspace.getConfiguration("bazel.commandLine");
-    const startupOptions = bazelConfigCmdLine.get<string[]>("startupOptions");
+    const bazelConfigCmdLine = vscode.workspace.getConfiguration(
+      "bazel.commandLine"
+    );
+    const startupOptions = bazelConfigCmdLine.get<string[]>(
+      "startupOptions",
+      []
+    );
 
     const result = startupOptions
       .concat(additionalStartupOptions)
