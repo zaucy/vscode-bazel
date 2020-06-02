@@ -146,7 +146,7 @@
             {
                 "type": "bazel-launch-build",
                 "label": "Launch Bazel Build",
-                "program": "./src/debug-adapter/client.js",
+                "program": "./src/debug-adapter/client",
                 "runtime": "node",
                 "configurationAttributes": {
                     "launch": {

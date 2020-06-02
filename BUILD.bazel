@@ -1,6 +1,7 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
 
 exports_files(["tsconfig.json"], visibility = ["//visibility:public"])
+exports_files(["macros.bzl"], visibility = ["//:__subpackages__"])
 
 _publish_files = ["package.json", "LICENSE"] + glob([
     "syntaxes/*",

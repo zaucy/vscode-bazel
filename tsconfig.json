@@ -1,8 +1,13 @@
 {
     "compilerOptions": {
+        "target": "ES6",
+        "module": "CommonJS",
+        "moduleResolution": "node",
         "lib": ["es2017"],
         "strict": true,
         "baseUrl": ".",
-        "target": "es2015",
+        "paths": {
+            "bazelbuild_vscode/*": ["*"]
+        }
     }
 }
