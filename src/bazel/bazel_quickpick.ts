@@ -72,7 +72,7 @@ export class BazelTargetQuickPick
  */
 async function queryWorkspaceQuickPickTargets(
   workspaceInfo: BazelWorkspaceInfo,
-  query: string
+  query: string,
 ): Promise<BazelTargetQuickPick[]> {
   if (!workspaceInfo.workspaceFolder) {
     return [];
@@ -82,7 +82,7 @@ async function queryWorkspaceQuickPickTargets(
     getDefaultBazelExecutablePath(),
     workspaceInfo.workspaceFolder.uri.fsPath,
     query,
-    []
+    [],
   ).queryTargets();
   // Sort the labels so the QuickPick is ordered.
   const labels = queryResult.target.map((target) => target.rule?.name || "");
@@ -100,7 +100,7 @@ async function queryWorkspaceQuickPickTargets(
  * @param workspace The bazel workspace to run the bazel command from.
  */
 async function queryWorkspaceQuickPickPackages(
-  workspaceInfo: BazelWorkspaceInfo
+  workspaceInfo: BazelWorkspaceInfo,
 ): Promise<BazelTargetQuickPick[]> {
   if (!workspaceInfo.workspaceFolder) {
     return [];
@@ -110,7 +110,7 @@ async function queryWorkspaceQuickPickPackages(
     getDefaultBazelExecutablePath(),
     workspaceInfo.workspaceFolder.uri.fsPath,
     "...:*",
-    []
+    [],
   ).queryPackages();
   const result: BazelTargetQuickPick[] = [];
   for (const target of packagePaths) {
@@ -156,7 +156,7 @@ async function pickBazelWorkspace(): Promise<BazelWorkspaceInfo | undefined> {
  * @param query The bazel query string to run.
  */
 export async function queryQuickPickTargets(
-  query: string
+  query: string,
 ): Promise<BazelTargetQuickPick[]> {
   const workspace = await pickBazelWorkspace();
 

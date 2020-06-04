@@ -24,7 +24,7 @@ import { blaze_query } from "../protos";
 export class BazelTargetSymbolProvider implements DocumentSymbolProvider {
   public async provideDocumentSymbols(
     document: vscode.TextDocument,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): Promise<vscode.SymbolInformation[] | vscode.DocumentSymbol[]> {
     const workspaceInfo = BazelWorkspaceInfo.fromDocument(document);
     if (workspaceInfo === undefined) {
@@ -35,7 +35,7 @@ export class BazelTargetSymbolProvider implements DocumentSymbolProvider {
     const queryResult = await getTargetsForBuildFile(
       getDefaultBazelExecutablePath(),
       workspaceInfo.bazelWorkspacePath,
-      document.uri.fsPath
+      document.uri.fsPath,
     );
 
     return this.computeSymbols(queryResult);
@@ -48,7 +48,7 @@ export class BazelTargetSymbolProvider implements DocumentSymbolProvider {
    * @param queryResult The result of the bazel query.
    */
   private computeSymbols(
-    queryResult: blaze_query.QueryResult
+    queryResult: blaze_query.QueryResult,
   ): vscode.DocumentSymbol[] {
     const result = [];
 
@@ -71,8 +71,8 @@ export class BazelTargetSymbolProvider implements DocumentSymbolProvider {
           "",
           vscode.SymbolKind.Function,
           location.range,
-          location.range
-        )
+          location.range,
+        ),
       );
     }
 

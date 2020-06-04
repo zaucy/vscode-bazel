@@ -45,7 +45,7 @@ export class BazelPackageTreeItem
   constructor(
     private readonly workspaceInfo: BazelWorkspaceInfo,
     private readonly packagePath: string,
-    private readonly parentPackagePath: string
+    private readonly parentPackagePath: string,
   ) {}
 
   public mightHaveChildren(): boolean {
@@ -58,12 +58,12 @@ export class BazelPackageTreeItem
       this.workspaceInfo.bazelWorkspacePath,
       `//${this.packagePath}:all`,
       [],
-      true
+      true,
     ).queryTargets([], /* sortByRuleName: */ true);
     const targets = queryResult.target.map((target) => {
       return new BazelTargetTreeItem(
         this.workspaceInfo,
-        new blaze_query.Target(target)
+        new blaze_query.Target(target),
       );
     });
     return (this.directSubpackages as IBazelTreeItem[]).concat(targets);

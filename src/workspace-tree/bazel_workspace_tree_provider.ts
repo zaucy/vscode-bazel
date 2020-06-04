@@ -45,22 +45,22 @@ export class BazelWorkspaceTreeProvider
       "**/{BUILD,BUILD.bazel}",
       false,
       false,
-      false
+      false,
     );
     buildWatcher.onDidChange(
       this.onBuildFilesChanged,
       this,
-      context.subscriptions
+      context.subscriptions,
     );
     buildWatcher.onDidCreate(
       this.onBuildFilesChanged,
       this,
-      context.subscriptions
+      context.subscriptions,
     );
     buildWatcher.onDidDelete(
       this.onBuildFilesChanged,
       this,
-      context.subscriptions
+      context.subscriptions,
     );
 
     vscode.workspace.onDidChangeWorkspaceFolders(this.refresh, this);
@@ -155,7 +155,7 @@ export class BazelWorkspaceTreeProvider
     vscode.commands.executeCommand(
       "setContext",
       "vscodeBazelHaveBazelWorkspace",
-      haveBazelWorkspace
+      haveBazelWorkspace,
     );
   }
 }

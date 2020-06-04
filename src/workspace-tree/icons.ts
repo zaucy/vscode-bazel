@@ -59,7 +59,7 @@ const SPECIFIC_RULE_CLASS_ICONS: { [key: string]: string | undefined } = {
  * @param rule The {@code QueriedRule} representing the build target.
  */
 export function getBazelRuleIcon(
-  target: blaze_query.Target
+  target: blaze_query.Target,
 ): string | vscode.ThemeIcon {
   const ruleClass = target.rule?.ruleClass || "";
   let iconName = SPECIFIC_RULE_CLASS_ICONS[ruleClass] || "";

@@ -33,10 +33,10 @@ function quotedOption(option: string): vscode.ShellQuotedString {
  */
 export function createBazelTask(
   command: "build" | "clean" | "test",
-  options: IBazelCommandOptions
+  options: IBazelCommandOptions,
 ): vscode.Task {
   const bazelConfigCmdLine = vscode.workspace.getConfiguration(
-    "bazel.commandLine"
+    "bazel.commandLine",
   );
   const startupOptions = bazelConfigCmdLine.get<string[]>("startupOptions", []);
   const addCommandArgs = command === "build" || command === "test";
@@ -74,7 +74,7 @@ export function createBazelTask(
     "bazel",
     new vscode.ShellExecution(getDefaultBazelExecutablePath(), args, {
       cwd: options.workspaceInfo.bazelWorkspacePath,
-    })
+    }),
   );
   setBazelTaskInfo(task, new BazelTaskInfo(command, options));
   return task;

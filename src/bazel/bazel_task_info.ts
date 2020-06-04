@@ -34,7 +34,7 @@ export class BazelTaskInfo {
    */
   public constructor(
     readonly command: string,
-    readonly commandOptions: IBazelCommandOptions
+    readonly commandOptions: IBazelCommandOptions,
   ) {}
 }
 

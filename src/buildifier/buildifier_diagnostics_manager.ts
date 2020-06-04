@@ -25,7 +25,7 @@ const DIAGNOSTICS_ON_TYPE_DELAY_MILLIS = 500;
 export class BuildifierDiagnosticsManager implements vscode.Disposable {
   /** The diagnostics collection for buildifier lint warnings. */
   private diagnosticsCollection = vscode.languages.createDiagnosticCollection(
-    "buildifier"
+    "buildifier",
   );
 
   /**
@@ -76,7 +76,7 @@ export class BuildifierDiagnosticsManager implements vscode.Disposable {
       const warnings = await buildifierLint(
         document.getText(),
         getBuildifierFileType(document.uri.fsPath),
-        "warn"
+        "warn",
       );
 
       this.diagnosticsCollection.set(
@@ -87,17 +87,17 @@ export class BuildifierDiagnosticsManager implements vscode.Disposable {
             warning.start.line - 1,
             warning.start.column - 1,
             warning.end.line - 1,
-            warning.end.column - 1
+            warning.end.column - 1,
           );
           const diagnostic = new vscode.Diagnostic(
             range,
             warning.message,
-            vscode.DiagnosticSeverity.Warning
+            vscode.DiagnosticSeverity.Warning,
           );
           diagnostic.source = "buildifier";
           diagnostic.code = warning.category;
           return diagnostic;
-        })
+        }),
       );
     }
   }

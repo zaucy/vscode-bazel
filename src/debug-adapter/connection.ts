@@ -70,7 +70,7 @@ export class BazelDebugConnection extends EventEmitter {
   public constructor(
     host: string,
     port: number,
-    private logger: (message: string, ...objects: any[]) => void
+    private logger: (message: string, ...objects: any[]) => void,
   ) {
     super();
 
@@ -87,7 +87,7 @@ export class BazelDebugConnection extends EventEmitter {
    * @returns A {@code Promise} for the response to the request.
    */
   public sendRequest(
-    options: starlark_debugging.IDebugRequest
+    options: starlark_debugging.IDebugRequest,
   ): Promise<starlark_debugging.IDebugEvent> {
     const sequenceNumber = long.fromValue(this.sequenceNumber++);
 
@@ -134,7 +134,7 @@ export class BazelDebugConnection extends EventEmitter {
           }, 1000);
         } else {
           this.logger(
-            "Could not connect to Bazel debug server after 5 seconds"
+            "Could not connect to Bazel debug server after 5 seconds",
           );
           // TODO(allevato): Improve the error case.
           throw error;
@@ -172,7 +172,7 @@ export class BazelDebugConnection extends EventEmitter {
       // number or a Long (which is an object with separate low/high ints.)
       if (event.sequenceNumber.toString() !== "0") {
         const handler = this.pendingResolvers.get(
-          event.sequenceNumber.toString()
+          event.sequenceNumber.toString(),
         );
         if (handler) {
           this.pendingResolvers.delete(event.sequenceNumber.toString());

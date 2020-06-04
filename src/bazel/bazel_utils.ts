@@ -29,7 +29,7 @@ import { BazelQuery } from "./bazel_query";
 export async function getTargetsForBuildFile(
   bazelExecutable: string,
   workspace: string,
-  buildFile: string
+  buildFile: string,
 ): Promise<blaze_query.QueryResult> {
   // Path to the BUILD file relative to the workspace.
   const relPathToDoc = path.relative(workspace, buildFile);
@@ -46,7 +46,7 @@ export async function getTargetsForBuildFile(
     bazelExecutable,
     workspace,
     `kind(rule, ${pkg}:all)`,
-    []
+    [],
   ).queryTargets();
 
   return queryResult;
@@ -71,7 +71,7 @@ function shouldIgnorePath(fsPath: string): boolean {
       }
     } catch (err) {
       vscode.window.showErrorMessage(
-        "pathsToIgnore value isn't a valid regex: " + escape(pathRegex)
+        "pathsToIgnore value isn't a valid regex: " + escape(pathRegex),
       );
     }
   }

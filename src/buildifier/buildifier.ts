@@ -37,7 +37,7 @@ export type BuildifierFileType = "build" | "bzl" | "workspace";
 export async function buildifierFormat(
   fileContent: string,
   type: BuildifierFileType,
-  applyLintFixes: boolean
+  applyLintFixes: boolean,
 ): Promise<string> {
   const args = [`--mode=fix`, `--type=${type}`];
   if (applyLintFixes) {
@@ -60,7 +60,7 @@ export async function buildifierFormat(
 export async function buildifierLint(
   fileContent: string,
   type: BuildifierFileType,
-  lintMode: "fix"
+  lintMode: "fix",
 ): Promise<string>;
 
 /**
@@ -77,13 +77,13 @@ export async function buildifierLint(
 export async function buildifierLint(
   fileContent: string,
   type: BuildifierFileType,
-  lintMode: "warn"
+  lintMode: "warn",
 ): Promise<IBuildifierWarning[]>;
 
 export async function buildifierLint(
   fileContent: string,
   type: BuildifierFileType,
-  lintMode: BuildifierLintMode
+  lintMode: BuildifierLintMode,
 ): Promise<string | IBuildifierWarning[]> {
   const args = [
     `--format=json`,
@@ -165,7 +165,7 @@ export function getDefaultBuildifierExecutablePath(): string {
   const bazelConfig = vscode.workspace.getConfiguration("bazel");
   const buildifierExecutable = bazelConfig.get<string>(
     "buildifierExecutable",
-    "buildifier"
+    "buildifier",
   );
   return buildifierExecutable;
 }
@@ -182,7 +182,7 @@ export function getDefaultBuildifierExecutablePath(): string {
 function executeBuildifier(
   fileContent: string,
   args: string[],
-  acceptNonSevereErrors: boolean
+  acceptNonSevereErrors: boolean,
 ): Promise<{ stdout: string; stderr: string }> {
   return new Promise((resolve, reject) => {
     const execOptions = {
@@ -201,7 +201,7 @@ function executeBuildifier(
         } else {
           reject(error);
         }
-      }
+      },
     );
     // Write the file being linted/formatted to stdin and close the stream so
     // that the buildifier process continues.

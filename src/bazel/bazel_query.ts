@@ -42,7 +42,7 @@ export class BazelQuery extends BazelCommand {
     workingDirectory: string,
     query: string,
     options: string[],
-    private readonly ignoresErrors: boolean = false
+    private readonly ignoresErrors: boolean = false,
   ) {
     super(bazelExecutable, workingDirectory, [query].concat(options));
   }
@@ -58,7 +58,7 @@ export class BazelQuery extends BazelCommand {
    */
   public async queryTargets(
     additionalOptions: string[] = [],
-    sortByRuleName: boolean = false
+    sortByRuleName: boolean = false,
   ): Promise<blaze_query.QueryResult> {
     const buffer = await this.run(additionalOptions.concat(["--output=proto"]));
     const result = blaze_query.QueryResult.decode(buffer);
@@ -89,10 +89,10 @@ export class BazelQuery extends BazelCommand {
    *     match.
    */
   public async queryPackages(
-    additionalOptions: string[] = []
+    additionalOptions: string[] = [],
   ): Promise<string[]> {
     const buffer = await this.run(
-      additionalOptions.concat(["--output=package"])
+      additionalOptions.concat(["--output=package"]),
     );
     const result = buffer.toString("utf-8").trim().split("\n").sort();
     return result;
@@ -156,7 +156,7 @@ export class BazelQuery extends BazelCommand {
           } else {
             resolve(stdout);
           }
-        }
+        },
       );
     });
   }

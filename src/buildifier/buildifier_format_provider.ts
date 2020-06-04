@@ -24,12 +24,12 @@ export class BuildifierFormatProvider
   public async provideDocumentFormattingEdits(
     document: vscode.TextDocument,
     options: vscode.FormattingOptions,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): Promise<vscode.TextEdit[]> {
     const bazelConfig = vscode.workspace.getConfiguration("bazel");
     const applyLintFixes = bazelConfig.get<boolean>(
       "buildifierFixOnFormat",
-      false
+      false,
     );
 
     const fileContent = document.getText();
@@ -38,7 +38,7 @@ export class BuildifierFormatProvider
       const formattedContent = await buildifierFormat(
         fileContent,
         type,
-        applyLintFixes
+        applyLintFixes,
       );
       if (formattedContent === fileContent) {
         // If the file didn't change, return any empty array of edits.
@@ -49,9 +49,9 @@ export class BuildifierFormatProvider
         new vscode.TextEdit(
           new vscode.Range(
             document.positionAt(0),
-            document.positionAt(fileContent.length)
+            document.positionAt(fileContent.length),
           ),
-          formattedContent
+          formattedContent,
         ),
       ];
       return edits;

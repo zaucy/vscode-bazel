@@ -55,9 +55,9 @@ export function checkBuildifierIsAvailable() {
         }
         // If we didn't get valid JSON back, we don't have a compatible version.
         showBuildifierDownloadPrompt(
-          "Buildifier is too old (0.25.1 or higher is needed)"
+          "Buildifier is too old (0.25.1 or higher is needed)",
         );
-      }
+      },
     );
     process.stdin.end();
   });
@@ -76,13 +76,13 @@ async function showBuildifierDownloadPrompt(reason: string) {
       "will not be available. Please download it from " +
       `${BUILDTOOLS_RELEASES_URL} and install it ` +
       "on your system PATH or set its location in Settings.",
-    { title: "Download" }
+    { title: "Download" },
   );
 
   if (item && item.title === "Download") {
     await vscode.commands.executeCommand(
       "vscode.open",
-      vscode.Uri.parse(BUILDTOOLS_RELEASES_URL)
+      vscode.Uri.parse(BUILDTOOLS_RELEASES_URL),
     );
   }
 }

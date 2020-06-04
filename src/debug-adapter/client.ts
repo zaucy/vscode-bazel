@@ -143,7 +143,7 @@ class BazelDebugSession extends DebugSession {
 
   protected initializeRequest(
     response: DebugProtocol.InitializeResponse,
-    args: DebugProtocol.InitializeRequestArguments
+    args: DebugProtocol.InitializeRequestArguments,
   ) {
     response.body = response.body || {};
     response.body.supportsConfigurationDoneRequest = true;
@@ -154,7 +154,7 @@ class BazelDebugSession extends DebugSession {
 
   protected async configurationDoneRequest(
     response: DebugProtocol.ConfigurationDoneResponse,
-    args: DebugProtocol.ConfigurationDoneArguments
+    args: DebugProtocol.ConfigurationDoneArguments,
   ) {
     await this.bazelConnection.sendRequest({
       startDebugging: starlark_debugging.StartDebuggingRequest.create(),
@@ -165,7 +165,7 @@ class BazelDebugSession extends DebugSession {
 
   protected async launchRequest(
     response: DebugProtocol.LaunchResponse,
-    args: ILaunchRequestArguments
+    args: ILaunchRequestArguments,
   ) {
     const port = args.port || 7300;
     const verbose = args.verbose || false;
@@ -188,7 +188,7 @@ class BazelDebugSession extends DebugSession {
     this.bazelConnection = new BazelDebugConnection(
       "localhost",
       port,
-      this.debugLog
+      this.debugLog,
     );
     this.bazelConnection.on("connect", () => {
       this.sendResponse(response);
@@ -202,7 +202,7 @@ class BazelDebugSession extends DebugSession {
 
   protected disconnectRequest(
     response: DebugProtocol.DisconnectResponse,
-    args: DebugProtocol.DisconnectArguments
+    args: DebugProtocol.DisconnectArguments,
   ) {
     // Kill the spawned Bazel process on disconnect. The Bazel server will stay
     // up, but this should terminate processing of the invoked command.
@@ -216,7 +216,7 @@ class BazelDebugSession extends DebugSession {
 
   protected setBreakPointsRequest(
     response: DebugProtocol.SetBreakpointsResponse,
-    args: DebugProtocol.SetBreakpointsArguments
+    args: DebugProtocol.SetBreakpointsArguments,
   ) {
     // The path we need to pass to Bazel here depends on how the .bzl file has
     // been loaded. Unfortunately this means we have to create two breakpoints,
@@ -233,17 +233,17 @@ class BazelDebugSession extends DebugSession {
     // TODO(allevato): We may be able to simplify this once
     // https://github.com/bazelbuild/bazel/issues/6848 is in a release.
     const workspaceName = path.basename(
-      this.bazelInfo.get("execution_root") || ""
+      this.bazelInfo.get("execution_root") || "",
     );
     const relativeSourcePath = path.relative(
       this.bazelInfo.get("workspace") || "",
-      args.source?.path || ""
+      args.source?.path || "",
     );
     const sourcePathInExternal = path.join(
       this.bazelInfo.get("output_base") || "",
       "external",
       workspaceName,
-      relativeSourcePath
+      relativeSourcePath,
     );
     this.sourceBreakpoints.set(args.source?.path || "", args.breakpoints || []);
     this.sourceBreakpoints.set(sourcePathInExternal, args.breakpoints || []);
@@ -259,7 +259,7 @@ class BazelDebugSession extends DebugSession {
               lineNumber: breakpoint.line,
               path: sourcePath,
             }),
-          })
+          }),
         );
       }
     }
@@ -279,7 +279,7 @@ class BazelDebugSession extends DebugSession {
       threads: Array.from(this.pausedThreads.values()).map((bazelThread) => {
         return new Thread(
           number64(bazelThread.id || 0),
-          bazelThread.name || ""
+          bazelThread.name || "",
         );
       }),
     };
@@ -288,7 +288,7 @@ class BazelDebugSession extends DebugSession {
 
   protected async stackTraceRequest(
     response: DebugProtocol.StackTraceResponse,
-    args: DebugProtocol.StackTraceArguments
+    args: DebugProtocol.StackTraceArguments,
   ) {
     const event = await this.bazelConnection.sendRequest({
       listFrames: starlark_debugging.ListFramesRequest.create({
@@ -306,7 +306,7 @@ class BazelDebugSession extends DebugSession {
         const location = bazelFrame.location;
         const vsFrame = new StackFrame(
           frameHandle,
-          bazelFrame.functionName || "<global scope>"
+          bazelFrame.functionName || "<global scope>",
         );
         if (location && location.path) {
           // Resolve the real path to the file, which will make sure that when
@@ -327,7 +327,7 @@ class BazelDebugSession extends DebugSession {
 
   protected scopesRequest(
     response: DebugProtocol.ScopesResponse,
-    args: DebugProtocol.ScopesArguments
+    args: DebugProtocol.ScopesArguments,
   ) {
     const frameThreadId = this.frameThreadIds.get(args.frameId);
     const bazelFrame = this.frameHandles.get(args.frameId);
@@ -353,7 +353,7 @@ class BazelDebugSession extends DebugSession {
 
   protected async variablesRequest(
     response: DebugProtocol.VariablesResponse,
-    args: DebugProtocol.VariablesArguments
+    args: DebugProtocol.VariablesArguments,
   ) {
     let bazelValues: starlark_debugging.IValue[];
     let threadId: number;
@@ -400,7 +400,7 @@ class BazelDebugSession extends DebugSession {
       const variable = new Variable(
         value.label || "",
         value.description || "",
-        valueHandle
+        valueHandle,
       );
       variables.push(variable);
     }
@@ -411,7 +411,7 @@ class BazelDebugSession extends DebugSession {
 
   protected async evaluateRequest(
     response: DebugProtocol.EvaluateResponse,
-    args: DebugProtocol.EvaluateArguments
+    args: DebugProtocol.EvaluateArguments,
   ) {
     if (!this.bazelConnection) {
       return;
@@ -450,41 +450,41 @@ class BazelDebugSession extends DebugSession {
 
   protected continueRequest(
     response: DebugProtocol.ContinueResponse,
-    args: DebugProtocol.ContinueArguments
+    args: DebugProtocol.ContinueArguments,
   ) {
     response.body = { allThreadsContinued: false };
     this.sendControlFlowRequest(
       args.threadId,
-      starlark_debugging.Stepping.NONE
+      starlark_debugging.Stepping.NONE,
     );
     this.sendResponse(response);
   }
 
   protected nextRequest(
     response: DebugProtocol.NextResponse,
-    args: DebugProtocol.NextArguments
+    args: DebugProtocol.NextArguments,
   ) {
     this.sendControlFlowRequest(
       args.threadId,
-      starlark_debugging.Stepping.OVER
+      starlark_debugging.Stepping.OVER,
     );
     this.sendResponse(response);
   }
 
   protected stepInRequest(
     response: DebugProtocol.StepInResponse,
-    args: DebugProtocol.StepInArguments
+    args: DebugProtocol.StepInArguments,
   ) {
     this.sendControlFlowRequest(
       args.threadId,
-      starlark_debugging.Stepping.INTO
+      starlark_debugging.Stepping.INTO,
     );
     this.sendResponse(response);
   }
 
   protected stepOutRequest(
     response: DebugProtocol.StepOutResponse,
-    args: DebugProtocol.StepOutArguments
+    args: DebugProtocol.StepOutArguments,
   ) {
     this.sendControlFlowRequest(args.threadId, starlark_debugging.Stepping.OUT);
     this.sendResponse(response);
@@ -500,7 +500,7 @@ class BazelDebugSession extends DebugSession {
    */
   private sendControlFlowRequest(
     threadId: number,
-    stepping: starlark_debugging.Stepping
+    stepping: starlark_debugging.Stepping,
   ) {
     // Clear out all the cached state when the user resumes a thread.
     this.frameHandles.clear();
@@ -543,13 +543,13 @@ class BazelDebugSession extends DebugSession {
     if (event.thread?.id) {
       this.pausedThreads.set(number64(event.thread.id), event.thread);
       this.sendEvent(
-        new StoppedEvent("a breakpoint", number64(event.thread.id))
+        new StoppedEvent("a breakpoint", number64(event.thread.id)),
       );
     }
   }
 
   private handleThreadContinued(
-    event: starlark_debugging.IThreadContinuedEvent
+    event: starlark_debugging.IThreadContinuedEvent,
   ) {
     if (event.threadId) {
       this.sendEvent(new ContinuedEvent(number64(event.threadId)));
@@ -577,7 +577,7 @@ class BazelDebugSession extends DebugSession {
    */
   private getBazelInfo(
     bazelExecutable: string,
-    cwd: string
+    cwd: string,
   ): Promise<Map<string, string>> {
     return new Promise((resolve, reject) => {
       const execOptions = {
@@ -606,7 +606,7 @@ class BazelDebugSession extends DebugSession {
             }
             resolve(keyValues);
           }
-        }
+        },
       );
     });
   }

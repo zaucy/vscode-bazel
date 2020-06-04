@@ -371,6 +371,9 @@
         "typescript": "^3.7.2",
         "vscode": "^1.1.36"
     },
+    "prettier": {
+        "trailingComma": "all"
+    },
     "dependencies": {
         "protobufjs": "^6.8.0",
         "vscode-debugadapter": "^1.37.1",
